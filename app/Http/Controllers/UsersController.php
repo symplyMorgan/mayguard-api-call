@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class UsersController extends Controller
 {
@@ -15,7 +16,7 @@ class UsersController extends Controller
         ]);
 
         $url = 'https://apidev.mayguard.ai/api/v1/auth/login';
-        $response = $this->attemptRequest($url, $data);
+        $response = $this->guzzlePost($url, $data);
 
         dd($response);
     }
@@ -32,21 +33,15 @@ class UsersController extends Controller
         ]);
 
         $url = 'https://apidev.mayguard.ai/api/v1/auth/register';
-        $response = $this->attemptRequest($url, $data);
+        $response = $this->guzzlePost($url, $data);
 
         dd($response);
     }
 
-    protected function attemptRequest(string $url, array $data): bool|string
+    protected function guzzlePost(string $url, array $data): \Illuminate\Support\Collection
     {
-        $curl = curl_init($url);
-        $fields = http_build_query($data);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $fields);
-        $response = curl_exec($curl);
-        curl_close($curl);
-        return $response;
+        $response = Http::post($url, $data);
+        return $response->collect();
     }
 
 }
